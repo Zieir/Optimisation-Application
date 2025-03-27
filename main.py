@@ -1,3 +1,4 @@
+#!usr/bin/env
 #OA2025-TP1
 #LALAOUI Rayan rayan.lalaoui@gmail.com
 #KERMADJ Zineddine zineddinekermadj@gmail.com
@@ -15,7 +16,7 @@ def main():
     - python main.py 5 -v
     - python main.py 5
     """
-
+    random.seed(42)
     # Gestion des arguments en ligne de commande
     if len(sys.argv) > 1:
         try:
@@ -26,13 +27,13 @@ def main():
             num_edges = random.randint(num_vertices - 1, (num_vertices * (num_vertices - 1)) // 2)
             graph = Graph.generate_random_graph(num_vertices, num_edges)
             print(f"Graphe généré avec {num_vertices} sommets et {num_edges} arêtes :")
-            graph.display(visual=generate_png)
+            
 
             # Effectuer le coloriage avec Welsh-Powell
-            colors = graph.welsh_powell_coloring()
+            colors = graph.welsh_powell_partial_coloring(3)
             print(f"Couleurs assignées aux sommets : {colors}")
-            if generate_png:
-                print("Visualisation du graphe enregistrée en PNG.")
+            graph.display(visual=generate_png)
+
             return
         except ValueError:
             print("Entrée invalide. Veuillez fournir un entier pour <num_vertices> et éventuellement utiliser -v pour la visualisation.")
