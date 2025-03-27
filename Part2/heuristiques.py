@@ -1,3 +1,7 @@
+import math
+import random
+
+# --- Heuristique du plus proche voisin ---
 def nearest_neighbor_tsp(distance_matrix):
     """
     Résout le TSP en utilisant l'heuristique du plus proche voisin.
@@ -30,10 +34,8 @@ def nearest_neighbor_tsp(distance_matrix):
 
     return tour, total_distance
 
-import random
-import math
-
-def simulated_annealing_tsp(distance_matrix, initial_temperature, cooling_rate, max_iterations):
+# --- Recuit simulé ---
+def recuit_simule(distance_matrix, initial_temperature, cooling_rate, max_iterations):
     """
     Résout le TSP en utilisant le recuit simulé.
     :param distance_matrix: Matrice des distances entre les villes.
@@ -74,6 +76,7 @@ def simulated_annealing_tsp(distance_matrix, initial_temperature, cooling_rate, 
 
     return best_tour, best_distance
 
+# --- Algorithme 2-opt ---
 def two_opt_tsp(distance_matrix, initial_tour):
     """
     Améliore une solution TSP initiale en utilisant l'algorithme 2-opt.
@@ -106,27 +109,3 @@ def two_opt_tsp(distance_matrix, initial_tour):
                 break  # Sortir de la boucle externe pour appliquer le changement
 
     return best_tour, best_distance
-
-distance_matrix = [
-    [0, 2, 9, 10, 7],
-    [2, 0, 6, 4, 3],
-    [9, 6, 0, 8, 5],
-    [10, 4, 8, 0, 6],
-    [7, 3, 5, 6, 0]
-]
-
-if __name__ == "__main__":
-    initial_tour, initial_distance = nearest_neighbor_tsp(distance_matrix)
-    print("Solution initiale (Nearest Neighbor):")
-    print(f"Tour: {initial_tour}, Distance: {initial_distance}")
-
-    print("\nSimulated Annealing:")
-    tour, distance = simulated_annealing_tsp(distance_matrix, initial_temperature=1000, cooling_rate=0.99, max_iterations=1000)
-    print(f"Tour: {tour}, Distance: {distance}")
-    
-    
-
-    # Amélioration avec 2-opt
-    improved_tour, improved_distance = two_opt_tsp(distance_matrix, initial_tour)
-    print("\nSolution améliorée (2-opt):")
-    print(f"Tour: {improved_tour}, Distance: {improved_distance}")
