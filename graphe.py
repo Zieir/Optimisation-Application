@@ -1,13 +1,56 @@
-#from graphviz import Graph as GraphvizGraph
+from graphviz import Graph as GraphvizGraph
+import random
 class Graph:
-    def __init__(self, num_vertices):
+
+    @staticmethod
+    def generate_random_graph(num_vertices, num_edges):
+        """
+        Génère un graphe connexe aléatoire avec un nombre donné de sommets et d'arêtes.
+        :param num_vertices: Nombre de sommets dans le graphe.
+        :param num_edges: Nombre d'arêtes dans le graphe.
+        :return: Une instance de la classe Graph représentant le graphe généré.
+        """
+        if num_edges < num_vertices - 1 or num_edges > (num_vertices * (num_vertices - 1)) // 2:
+            raise ValueError("Le nombre d'arêtes doit être compris entre num_vertices - 1 et num_vertices * (num_vertices - 1) // 2 pour garantir un graphe connexe.")
+
+        # Initialiser une liste d'arêtes
+        edges = []
+
+        # Étape 1 : Assurer la connexité en créant un arbre couvrant minimal
+        vertices = list(range(num_vertices))
+        random.shuffle(vertices)
+        for i in range(num_vertices - 1):
+            u, v = vertices[i], vertices[i + 1]
+            edges.append((u, v))
+
+        # Étape 2 : Ajouter des arêtes supplémentaires aléatoires
+        possible_edges = [(u, v) for u in range(num_vertices) for v in range(u + 1, num_vertices)]
+        random.shuffle(possible_edges)
+
+        for edge in possible_edges:
+            if len(edges) >= num_edges:
+                break
+            if edge not in edges:
+                edges.append(edge)
+
+        # Créer et retourner le graphe
+        return Graph(num_vertices, edges)
+   
+    def __init__(self, num_vertices, edges = None):
         """
         Initialise un graphe avec une matrice d'adjacence.
         :param num_vertices: Nombre de sommets dans le graphe.
         """
+        assert edges is not None and num_vertices >0 or  (edges is None)
         self.num_vertices = num_vertices
         self.adj_matrix = [[0] * num_vertices for _ in range(num_vertices)]
         self.colors = []
+
+        if edges is not None:
+            for edge in edges:
+                self.add_edge(edge[0], edge[1])
+
+        
 
     def add_edge(self, u, v):
         """
@@ -118,7 +161,7 @@ class Graph:
         self.colors = colors
         return colors
     
-    def welsh_powell_partial_coloring(self, k):
+    def welsh_powell_partial_coloring(self, k, inverted = True):
         """
         Welsh-Powell adapté : colore un maximum de sommets avec au plus k couleurs.
         Les sommets non coloriables avec k couleurs restent non coloriés (-1).
@@ -131,7 +174,7 @@ class Graph:
         # Calculer les degrés
         degrees = [(i, sum(self.adj_matrix[i])) for i in range(self.num_vertices)]
         # Tri décroissant des sommets selon le degré
-        degrees.sort(key=lambda x: x[1], reverse=True)
+        degrees.sort(key=lambda x: x[1], reverse=not inverted)
 
         # Initialisation
         colors = [-1] * self.num_vertices
@@ -145,13 +188,14 @@ class Graph:
                     if all(colors[neighbor] != current_color for neighbor in self.get_neighbors(vertex)):
                         colors[vertex] = current_color  # Colorier le sommet
 
+
         self.colors = colors
         return colors
 
 
     def visualize_with_colors(self):
         
-        #Visualise le graphe en utilisant Graphviz avec des couleurs pour les sommets.
+        # Visualise le graphe en utilisant Graphviz avec des couleurs pour les sommets.
         #:param colors: Liste des couleurs assignées à chaque sommet.
         
         # Liste de couleurs prédéfinies
@@ -163,9 +207,9 @@ class Graph:
         # Ajouter les sommets avec leurs couleurs
         for i in range(self.num_vertices):
             color = None
-            if self.colors != []:
+            if self.colors != [] and self.colors[i] != -1:
                 color = color_palette[self.colors[i] % len(color_palette)]  # Assigner une couleur depuis la palette
-            dot.node(str(i), label=f'{i}', style='filled', fillcolor=color)
+            dot.node(str(i), label=f'{i}', style='filled' if color else '', fillcolor=color if color else '')
 
         # Ajouter les arêtes
         for u in range(self.num_vertices):

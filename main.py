@@ -1,36 +1,29 @@
 #OA2025-TP1
 #LALAOUI Rayan rayan.lalaoui@gmail.com
 #KERMADJ Zineddine zineddinekermadj@gmail.com
-
+import random
 from graphe import Graph
 
 def main():
-    # Demander à l'utilisateur le nombre de sommets
-    num_vertices = int(input("Entrez le nombre de sommets dans le graphe : "))
-    g = Graph(num_vertices)
+    random.seed(42)
 
-    # Demander à l'utilisateur d'ajouter des arêtes
-    print("Ajoutez les arêtes du graphe (entrez -1 -1 pour arrêter) :")
-    while True:
-        u, v = map(int, input("Entrez une arête (u v) : ").split())
-        if u == -1 and v == -1:
-            break
-        if 0 <= u < num_vertices and 0 <= v < num_vertices:
-            g.add_edge(u, v)
-            g.add_edge(v, u)
-        else:
-            print("Sommets invalides. Veuillez entrer des sommets entre 0 et", num_vertices - 1)
-
-    # Afficher la matrice d'adjacence
-    print("\nMatrice d'adjacence :")
+    cpt = 0
+    cptn =0
+    # Tester si le coloriage partiel sans inversion est pire qu'avec inversion
+    for num_vertices in range(3, 7):  # Graphes de 3 à 6 sommets
+        for num_edges in range(num_vertices - 1, (num_vertices * (num_vertices - 1)) // 2 + 1):  # Nombre d'arêtes
+            graph = Graph.generate_random_graph(num_vertices, num_edges)
+            for k in range(2, num_vertices):  # Tester avec des couleurs de 2 à num_vertices - 1
+                with_inversion = graph.welsh_powell_partial_coloring(k)
+                without_inversion = graph.welsh_powell_partial_coloring(k, inverted=False)
+                cptn+=1
+                
+                is_worse = without_inversion.count(-1) < with_inversion.count(-1)
+                if is_worse: 
+                    cpt +=1  
     
+    print(f"Nombre de graphes testé : {cptn} , nombre de graphe ou l'inversion est moins efficace {cpt}\n Pourcentage: {cpt/cptn*100 :.2f}%")
 
-    # Résoudre le problème de coloriage de graphe
-    print("\nColoriage du graphe :")
-    colors = g.welsh_powell_partial_coloring(2)
-    print("Couleurs assignées :", colors)
-
-    g.display()
 
 if __name__ == "__main__":
     main()
