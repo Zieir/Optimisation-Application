@@ -30,5 +30,7 @@ def main():
     colors = g.graph_coloring()
     print("Couleurs assignées :", colors)
 
+    g.visualize_with_colors()
+
 if __name__ == "__main__":
     main()

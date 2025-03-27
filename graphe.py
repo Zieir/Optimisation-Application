@@ -1,3 +1,4 @@
+from graphviz import Graph as GraphvizGraph
 class Graph:
     def __init__(self, num_vertices):
         """
@@ -6,6 +7,7 @@ class Graph:
         """
         self.num_vertices = num_vertices
         self.adj_matrix = [[0] * num_vertices for _ in range(num_vertices)]
+        self.colors = []
 
     def add_edge(self, u, v):
         """
@@ -38,12 +40,17 @@ class Graph:
             return [i for i in range(self.num_vertices) if self.adj_matrix[vertex][i] == 1]
         return []
 
-    def display(self):
+    def display(self, visual = True):
         """
         Affiche la matrice d'adjacence.
         """
         for row in self.adj_matrix:
             print(row)
+
+        if visual:
+            self.visualize_with_colors()
+        
+
 
     def graph_coloring(self):
         """
@@ -75,4 +82,66 @@ class Graph:
             # Réinitialiser les couleurs disponibles pour le prochain sommet
             available_colors = [True] * self.num_vertices
 
+        self.colors = colors
         return colors
+    
+    def welsh_powell_coloring(self):
+        """
+        Résout le problème de coloriage de graphe en utilisant l'algorithme de Welsh-Powell.
+        :return: Liste des couleurs assignées à chaque sommet.
+        """
+        if self.num_vertices == 0:
+            return []  # Retourner une liste vide si le graphe n'a pas de sommets
+
+        # Calculer le degré de chaque sommet
+        degrees = [(i, sum(self.adj_matrix[i])) for i in range(self.num_vertices)]
+        # Trier les sommets par degré décroissant
+        degrees.sort(key=lambda x: x[1], reverse=True)
+
+        # Initialiser les couleurs des sommets
+        colors = [-1] * self.num_vertices  # -1 signifie qu'aucune couleur n'est encore assignée
+        current_color = 0
+
+        # Assigner des couleurs aux sommets
+        for vertex, _ in degrees:
+            if colors[vertex] == -1:  # Si le sommet n'a pas encore de couleur
+                colors[vertex] = current_color
+                # Colorer les sommets non adjacents avec la même couleur
+                for other_vertex, _ in degrees:
+                    if colors[other_vertex] == -1 and not any(
+                        self.adj_matrix[other_vertex][neighbor] == 1 and colors[neighbor] == current_color
+                        for neighbor in range(self.num_vertices)
+                    ):
+                        colors[other_vertex] = current_color
+                current_color += 1
+
+        self.colors = colors
+        return colors
+    
+
+    def visualize_with_colors(self):
+        """
+        Visualise le graphe en utilisant Graphviz avec des couleurs pour les sommets.
+        :param colors: Liste des couleurs assignées à chaque sommet.
+        """
+        # Liste de couleurs prédéfinies
+        color_palette = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan', 'lime']
+
+        # Créer un graphe Graphviz
+        dot = GraphvizGraph(format='png')
+
+        # Ajouter les sommets avec leurs couleurs
+        for i in range(self.num_vertices):
+            color = None
+            if self.colors != []:
+                color = color_palette[self.colors[i] % len(color_palette)]  # Assigner une couleur depuis la palette
+            dot.node(str(i), label=f'{i}', style='filled', fillcolor=color)
+
+        # Ajouter les arêtes
+        for u in range(self.num_vertices):
+            for v in range(u + 1, self.num_vertices):  # Éviter les doublons pour un graphe non orienté
+                if self.adj_matrix[u][v] == 1:
+                    dot.edge(str(u), str(v))
+
+        # Sauvegarder et afficher le graphe
+        dot.render('graph_colored_visualization', view=True)
