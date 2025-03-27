@@ -23,14 +23,14 @@ def main():
 
     # Afficher la matrice d'adjacence
     print("\nMatrice d'adjacence :")
-    g.display()
+    
 
     # Résoudre le problème de coloriage de graphe
     print("\nColoriage du graphe :")
-    colors = g.graph_coloring()
+    colors = g.welsh_powell_partial_coloring(2)
     print("Couleurs assignées :", colors)
 
-    g.visualize_with_colors()
+    g.display()
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-from graphviz import Graph as GraphvizGraph
+#from graphviz import Graph as GraphvizGraph
 class Graph:
     def __init__(self, num_vertices):
         """
@@ -118,12 +118,42 @@ class Graph:
         self.colors = colors
         return colors
     
+    def welsh_powell_partial_coloring(self, k):
+        """
+        Welsh-Powell adapté : colore un maximum de sommets avec au plus k couleurs.
+        Les sommets non coloriables avec k couleurs restent non coloriés (-1).
+        :param k: Nombre maximum de couleurs autorisées.
+        :return: Liste des couleurs assignées aux sommets (non colorié = -1).
+        """
+        if self.num_vertices == 0:
+            return []
+
+        # Calculer les degrés
+        degrees = [(i, sum(self.adj_matrix[i])) for i in range(self.num_vertices)]
+        # Tri décroissant des sommets selon le degré
+        degrees.sort(key=lambda x: x[1], reverse=True)
+
+        # Initialisation
+        colors = [-1] * self.num_vertices
+
+        # Pour chaque couleur possible (limité à k)
+        for current_color in range(k):
+            # Pour chaque sommet par ordre de degré
+            for vertex, _ in degrees:
+                if colors[vertex] == -1:
+                    # Vérifier si tous les voisins n'ont pas la couleur actuelle
+                    if all(colors[neighbor] != current_color for neighbor in self.get_neighbors(vertex)):
+                        colors[vertex] = current_color  # Colorier le sommet
+
+        self.colors = colors
+        return colors
+
 
     def visualize_with_colors(self):
-        """
-        Visualise le graphe en utilisant Graphviz avec des couleurs pour les sommets.
-        :param colors: Liste des couleurs assignées à chaque sommet.
-        """
+        
+        #Visualise le graphe en utilisant Graphviz avec des couleurs pour les sommets.
+        #:param colors: Liste des couleurs assignées à chaque sommet.
+        
         # Liste de couleurs prédéfinies
         color_palette = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan', 'lime']
 
